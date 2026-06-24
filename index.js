@@ -6,6 +6,7 @@ import productRoutes from "./routes/products.routes.js"
 import categoryRoutes from "./routes/categories.routes.js"
 import suppliersRoutes from "./routes/suppliers.routes.js"
 import purchaseroutes from "./routes/purchases.routes.js"
+import transactionsRoutes from "./routes/transactions.routes.js"
 const app = express()
 app.use (cors())
 app.use (express.json())
@@ -17,6 +18,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes)
 app.use(`/api/suppliers`,suppliersRoutes)
 app.use(`/api/purchases`,purchaseroutes)
+app.use(`/api/transactions`,transactionsRoutes)
 // Server
 app.listen(config.PORT ,()=>{
     console.log(`Server Is UP and Running on PORT : ${config.PORT}`)
