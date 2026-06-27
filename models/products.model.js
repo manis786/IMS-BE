@@ -13,4 +13,7 @@ category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: tru
   status: { type: String, default: "active" }
 }, { timestamps: true });
 
-export const Product = mongoose.model('Product', productSchema);
+
+const Product = mongoose.model('Product', productSchema);
+
+export default Product

@@ -1,5 +1,4 @@
-import { Customer } from '../models/customer.model.js';
-
+import Customer from '../models/customer.model.js';
 // Create New Customer
 export const createCustomer = async (req, res) => {
   try {

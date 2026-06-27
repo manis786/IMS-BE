@@ -1,5 +1,5 @@
 import Purchase from '../models/purchases.model.js';
-import { Product } from '../models/products.model.js';
+import  Product  from '../models/products.model.js';
 import Supplier from '../models/suppliers.model.js';
 
 export const addPurchase = async (req, res) => {

@@ -1,4 +1,4 @@
-import { Product } from '../models/products.model.js';
+import  Product  from '../models/products.model.js';
 import { sendResponse } from '../libs/responseHandler.js';
 
 // 1. Get All Products
