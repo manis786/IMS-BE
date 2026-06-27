@@ -15,7 +15,13 @@ export const createSale = async (req, res) => {
     const newSale = new Sale({
       customer: customerId,
       invoiceNumber: `INV-${Date.now()}`,
-      subTotal, discount, tax, grandTotal, paymentMethod
+      subTotal,
+       discount, 
+       tax,
+       grandTotal, 
+       paymentMethod,
+       status: paymentMethod === 'Credit' ? 'pending' : 'paid'
+      
     });
     const savedSale = await newSale.save({ session });
 
@@ -39,7 +45,7 @@ export const createSale = async (req, res) => {
     }
 
     // 3. Customer Ledger (If Udhaar)
-    if (paymentMethod === 'Udhaar') {
+    if (paymentMethod === 'Credit') {
       await Customer.findByIdAndUpdate(customerId, {
         $inc: { balance: grandTotal }
       }, { session });
