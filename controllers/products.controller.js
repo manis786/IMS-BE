@@ -4,7 +4,34 @@ import { sendResponse } from '../libs/responseHandler.js';
 // 1. Get All Products
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const products = await Product.aggregate([
+      {
+        $lookup: {
+          from: 'transactions',
+          localField: '_id',
+          foreignField: 'product',
+          as: 'stockData'
+        }
+      },
+      {
+        $project: {
+          name: 1, id: 1, costPrice: 1, salePrice: 1,
+          status: { $ifNull: ["$status", "active"] },
+          stock: {
+            $reduce: {
+              input: "$stockData",
+              initialValue: 0,
+              in: {
+                $add: [
+                  "$$value",
+                  { $cond: [{ $in: ["$$this.type", ["PURCHASE", "RETURN"]] }, "$$this.quantity", { $multiply: ["$$this.quantity", -1] }] }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]);
     sendResponse(res, 200, true, 'Products fetched successfully', products);
   } catch (error) {
     sendResponse(res, 500, false, 'Failed to fetch products', error.message);

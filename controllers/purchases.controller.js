@@ -27,17 +27,11 @@ export const receivePurchase = async (req, res) => {
     const purchase = await Purchase.findById(req.params.id);
     if (!purchase || purchase.status === 'Received') return res.status(400).json({ message: "Invalid PO" });
 
-    // 1. Stock update logic
-    for (let item of purchase.items) {
-      await Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } });
-    }
-
-    // 2. Supplier balance update
-    await Supplier.findByIdAndUpdate(purchase.supplier, { $inc: { balance: purchase.totalAmount } });
-
-    // 3. Status update
+    // SIRF STATUS UPDATE KAREIN, LOOP HATA DIYA HAI
     purchase.status = 'Received';
     await purchase.save();
+
+    await Supplier.findByIdAndUpdate(purchase.supplier, { $inc: { balance: purchase.totalAmount } });
 
     res.status(200).json({ success: true, data: purchase });
   } catch (error) {
