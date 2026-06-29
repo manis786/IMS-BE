@@ -7,6 +7,14 @@ export const getAllProducts = async (req, res) => {
     const products = await Product.aggregate([
       {
         $lookup: {
+          from: 'categories', // Tumhare MongoDB mein collection ka naam
+          localField: 'category', 
+          foreignField: '_id',
+          as: 'categoryInfo'
+        }
+      },
+      {
+        $lookup: {
           from: 'transactions',
           localField: '_id',
           foreignField: 'product',
@@ -15,7 +23,7 @@ export const getAllProducts = async (req, res) => {
       },
       {
         $project: {
-          name: 1, id: 1, costPrice: 1, salePrice: 1,
+          name: 1, id: 1, costPrice: 1, salePrice: 1,category: 1,
           status: { $ifNull: ["$status", "active"] },
           stock: {
             $reduce: {
