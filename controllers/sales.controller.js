@@ -6,10 +6,19 @@ import Customer from '../models/customer.model.js';
 
 export const createSale = async (req, res) => {
   try {
-    const { customerId, items, subTotal, discount, tax, grandTotal, paymentMethod, type } = req.body;
+    const { customerId, items, subTotal, discount, tax, grandTotal, paymentMethod, type, status } = req.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "Items are missing!" });
+    }
+
+    const currentStatus = status || 'paid'
+    let remainingAmount = 0;
+    
+    if (currentStatus === 'pending' || paymentMethod === 'Credit') {
+      remainingAmount = grandTotal;
+    } else {
+      remainingAmount = 0; // Paid hai toh baki kuch nahi bacha
     }
 
     // 1. Sale Header Save
@@ -21,6 +30,7 @@ export const createSale = async (req, res) => {
       tax,
       grandTotal,
       paymentMethod,
+      remainingAmount,
       type: type || 'pos',
       status: paymentMethod === 'Credit' ? 'pending' : 'paid'
     });
