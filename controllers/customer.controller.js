@@ -23,7 +23,12 @@ export const getCustomers = async (req, res) => {
 // Update Customer (Balance ya Profile)
 export const updateCustomer = async (req, res) => {
   try {
-    const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const customer = await Customer.findByIdAndUpdate(
+      req.params.id, req.body, 
+      { new: true,runValidators: true});
+    res.json(customer);
+    if (!customer) return res.status(404).json({ error: "Customer not found" });
+    
     res.json(customer);
   } catch (err) {
     res.status(400).json({ error: err.message });
