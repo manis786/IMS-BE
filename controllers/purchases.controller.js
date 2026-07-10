@@ -25,10 +25,10 @@ export const getPurchases = async (req, res) => {
 export const receivePurchase = async (req, res) => {
   try {
     const purchase = await Purchase.findById(req.params.id);
-    if (!purchase || purchase.status === 'Received') return res.status(400).json({ message: "Invalid PO" });
+    if (!purchase || purchase.status === 'Approved') return res.status(400).json({ message: "Invalid PO" });
 
     // SIRF STATUS UPDATE KAREIN, LOOP HATA DIYA HAI
-    purchase.status = 'Received';
+    purchase.status = 'Approved';
     await purchase.save();
 
     await Supplier.findByIdAndUpdate(purchase.supplier, { $inc: { balance: purchase.totalAmount } });
