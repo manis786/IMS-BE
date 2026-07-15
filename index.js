@@ -11,6 +11,8 @@ import customerRoutes from "./routes/customer.routes.js"
 import salesRoutes from './routes/sales.routes.js'
 import authroutes from "./routes/auth.routes.js"
 import dashboardRoutes from "./routes/dashboard.routes.js"
+import aiRoutes from "./routes/ai.routes.js"
+import accountsRoutes from "./routes/accounts.routes.js"
 
 const app = express()
 app.use (cors())
@@ -28,6 +30,8 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/sales', salesRoutes);
 app.use(`/api/auth`,authroutes)
 app.use(`/api/dashboard`,dashboardRoutes)
+app.use(`/api/ai`, aiRoutes)
+app.use('/api/finance/COA',accountsRoutes)
 
 
 // Server
