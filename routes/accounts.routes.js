@@ -2,7 +2,10 @@ import express from 'express';
 import { 
   getChartOfAccounts, 
   createAccount, 
-  updateAccount 
+  updateAccount, 
+  seedSystemAccounts,
+  getParentGroups,
+  deleteAccount
 } from '../controllers/accounts.controller.js';
 
 const router = express.Router();
@@ -14,6 +17,11 @@ router.get('/', getChartOfAccounts);
 router.post('/add', createAccount);
 
 // 3. PUT: Existing Account ko Edit karna
-router.put('/:id', updateAccount);
-
+router.put('/update/:id', updateAccount);
+// Delete Account
+router.delete('/delete/:id', deleteAccount);
+// Parent Group Accounts Route
+router.get('/parent-groups', getParentGroups);
+// Seed System Accounts
+router.post('/seed',seedSystemAccounts)
 export default router;
