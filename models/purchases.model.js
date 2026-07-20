@@ -8,7 +8,7 @@ const purchaseSchema = new mongoose.Schema({
     costPrice: { type: Number, required: true }
   }],
   totalAmount: { type: Number, required: true },
-  status: { type: String, enum: ['Pending', 'Received'], default: 'Pending' },
+  status: { type: String, enum: ['Pending', 'Received', 'Approved'], default: 'Pending' },
   date: { type: Date, default: Date.now }
 }, { timestamps: true });
 

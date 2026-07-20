@@ -11,7 +11,9 @@ const ACCOUNT_CONFIG = {
   RECEIVABLE: process.env.ACCOUNT_RECEIVABLE_ID || '65e1b456f123456789abcdef', 
   REVENUE: process.env.ACCOUNT_REVENUE_ID || '65e1c789f123456789abcdef',    
   COGS: process.env.ACCOUNT_COGS_ID || '65e1d012f123456789abcdef',       
-  INVENTORY: process.env.ACCOUNT_INVENTORY_ID || '65e1e345f123456789abcdef'   
+  INVENTORY: process.env.ACCOUNT_INVENTORY_ID || '65e1e345f123456789abcdef',
+  DISCOUNT_ALLOWED: process.env.ACCOUNT_DISCOUNT_ID || '65e1f999f123456789abcdef', // 🔥 Added
+  TAX_PAYABLE: process.env.ACCOUNT_TAX_ID || '65e1f888f123456789abcdef'            // 🔥 Added
 };
 
 // Safety check function for Mongo ObjectIds
@@ -35,12 +37,12 @@ export const createSale = async (req, res) => {
     let remainingAmount = (currentStatus === 'pending' || paymentMethod === 'Credit') ? grandTotal : 0;
 
     // 1. Sale Header Save
-    const newSale = new Sale({
+  const newSale = new Sale({
       customer: customerId && isValidObjectId(customerId) ? new mongoose.Types.ObjectId(customerId) : null,
       invoiceNumber: `INV-${Date.now()}`,
       subTotal,
-      discount,
-      tax,
+      discount: discount || 0,
+      tax: tax || 0,
       grandTotal,
       paymentMethod,
       remainingAmount,
@@ -90,16 +92,25 @@ export const createSale = async (req, res) => {
     }
 
     // 4. POS (Cash) Sale Double-Entry Ledger Posting
-    if (paymentMethod !== 'Credit' && currentStatus === 'paid') {
+if (paymentMethod !== 'Credit') {
       const allIdsValid = Object.values(ACCOUNT_CONFIG).every(id => isValidObjectId(id));
       
       if (allIdsValid) {
         const journalLines = [
           { accountId: ACCOUNT_CONFIG.CASH, debit: grandTotal, credit: 0 },
-          { accountId: ACCOUNT_CONFIG.REVENUE, debit: 0, credit: (subTotal - discount) },
+          { accountId: ACCOUNT_CONFIG.REVENUE, debit: 0, credit: subTotal }, // Gross Base Revenue
           { accountId: ACCOUNT_CONFIG.COGS, debit: totalCOGS, credit: 0 },
           { accountId: ACCOUNT_CONFIG.INVENTORY, debit: 0, credit: totalCOGS }
         ];
+
+        // Dynamic checking: Agar invoice par discount hai to Expense/Discount allowed badhao
+        if (discount > 0) {
+          journalLines.push({ accountId: ACCOUNT_CONFIG.DISCOUNT_ALLOWED, debit: discount, credit: 0 });
+        }
+        // Dynamic checking: Agar invoice par tax charged hai to tax liability badhao
+        if (tax > 0) {
+          journalLines.push({ accountId: ACCOUNT_CONFIG.TAX_PAYABLE, debit: 0, credit: tax });
+        }
 
         await postToLedger({
           date: new Date(),
@@ -108,8 +119,6 @@ export const createSale = async (req, res) => {
           referenceId: savedSale._id,
           lines: journalLines
         }, session);
-      } else {
-        console.warn("⚠️ Warning: Invalid Account IDs in ACCOUNT_CONFIG. Skipping ledger post to avoid crash.");
       }
     }
 
@@ -165,15 +174,13 @@ export const updateSaleStatus = async (req, res) => {
     );
 
     // Credit sales approval par ledger entry generate karein
-    if (status === 'approved' && updatedSale.paymentMethod === 'Credit') {
+  if (status === 'approved' && updatedSale.paymentMethod === 'Credit') {
       const stockTransactions = await Transaction.find({ saleId: updatedSale._id }).session(session);
       let totalCOGS = 0;
 
       for (const trans of stockTransactions) {
         const prod = await Product.findById(trans.product).session(session);
-        if (prod) {
-          totalCOGS += (Number(prod.costPrice || 0) * trans.quantity);
-        }
+        if (prod) totalCOGS += (Number(prod.costPrice || 0) * trans.quantity);
       }
 
       const allIdsValid = Object.values(ACCOUNT_CONFIG).every(id => isValidObjectId(id));
@@ -181,10 +188,17 @@ export const updateSaleStatus = async (req, res) => {
       if (allIdsValid) {
         const journalLines = [
           { accountId: ACCOUNT_CONFIG.RECEIVABLE, debit: updatedSale.grandTotal, credit: 0 },
-          { accountId: ACCOUNT_CONFIG.REVENUE, debit: 0, credit: (updatedSale.subTotal - updatedSale.discount) },
+          { accountId: ACCOUNT_CONFIG.REVENUE, debit: 0, credit: updatedSale.subTotal },
           { accountId: ACCOUNT_CONFIG.COGS, debit: totalCOGS, credit: 0 },
           { accountId: ACCOUNT_CONFIG.INVENTORY, debit: 0, credit: totalCOGS }
         ];
+
+        if (updatedSale.discount > 0) {
+          journalLines.push({ accountId: ACCOUNT_CONFIG.DISCOUNT_ALLOWED, debit: updatedSale.discount, credit: 0 });
+        }
+        if (updatedSale.tax > 0) {
+          journalLines.push({ accountId: ACCOUNT_CONFIG.TAX_PAYABLE, debit: 0, credit: updatedSale.tax });
+        }
 
         await postToLedger({
           date: new Date(),
@@ -193,8 +207,6 @@ export const updateSaleStatus = async (req, res) => {
           referenceId: updatedSale._id,
           lines: journalLines
         }, session);
-      } else {
-        console.warn("⚠️ Warning: Invalid Account IDs in ACCOUNT_CONFIG. Skipping ledger post for credit sale.");
       }
     }
 
