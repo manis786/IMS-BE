@@ -1,18 +1,18 @@
 import mongoose from 'mongoose';
 
 const transactionSchema = new mongoose.Schema({
-  // Core Data
-  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+  // Core Data (Payment ke waqt inhein optional kar diya hai taaki error na aaye)
+  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: false },
   type: { 
     type: String, 
-    enum: ['PURCHASE', 'SALE', 'RETURN', 'ADJUSTMENT', 'WASTAGE'], 
+    enum: ['PURCHASE', 'SALE', 'RETURN', 'ADJUSTMENT', 'WASTAGE', 'RECEIVE_PAYMENT', ''], 
     required: true 
   },
-  quantity: { type: Number, required: true },
-  price: { type: Number, required: true }, // Per unit price
+  quantity: { type: Number, required: false },
+  price: { type: Number, required: false }, // Per unit price
   
-  // Nayi Field: Total Amount
-  totalAmount: { type: Number, required: true }, // quantity * price
+  // Total Amount (Payment ke waqt yeh amountPaid ke barabar aa jayegi)
+  totalAmount: { type: Number, required: true }, 
   
   // Relations (Nullable)
   saleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Sale', default: null },

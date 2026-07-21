@@ -1,5 +1,5 @@
 import express from 'express';
-import { createSale, getAllSales, updateSaleStatus } from '../controllers/sales.controller.js';
+import { createSale, getAllSales, updateSaleStatus,getUnpaidSalesByCustomer } from '../controllers/sales.controller.js';
 
 const router = express.Router();
 
@@ -7,5 +7,6 @@ const router = express.Router();
 router.post('/', createSale);
 router.get('/',getAllSales)
 router.put('/:id',updateSaleStatus)
+router.get('/unpaid/:customerId', getUnpaidSalesByCustomer)
 
 export default router;

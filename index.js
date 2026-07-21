@@ -14,7 +14,7 @@ import dashboardRoutes from "./routes/dashboard.routes.js"
 import aiRoutes from "./routes/ai.routes.js"
 import accountsRoutes from "./routes/accounts.routes.js"
 import reportsRoutes from './routes/reports.routes.js';
-
+import paymentRoutes from './routes/payments.routes.js'
 const app = express()
 app.use (cors())
 app.use (express.json())
@@ -34,6 +34,7 @@ app.use(`/api/dashboard`,dashboardRoutes)
 app.use(`/api/ai`, aiRoutes)
 app.use('/api/finance/COA',accountsRoutes)
 app.use('/api/reports', reportsRoutes);
+app.use('/api/payments',paymentRoutes)
 
 
 // Server

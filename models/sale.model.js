@@ -15,7 +15,7 @@ const saleSchema = new mongoose.Schema({
   
   paymentMethod: { type: String, enum: ['Cash', 'Card', 'Mobile', 'Credit'], required: true },
   type: { type: String, enum: ['pos', 'credit'], default: 'pos' },
-  status: { type: String, enum: ['paid', 'pending', 'cancelled'], default: 'paid' },
+  status: { type: String, enum: ['paid', 'pending', 'cancelled','approved'], default: 'paid' },
   remainingAmount: { type: Number, default: 0 }
 }, { timestamps: true });
 
