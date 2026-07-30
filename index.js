@@ -15,6 +15,7 @@ import aiRoutes from "./routes/ai.routes.js"
 import accountsRoutes from "./routes/accounts.routes.js"
 import reportsRoutes from './routes/reports.routes.js';
 import paymentRoutes from './routes/payments.routes.js'
+import voucherRoutes from './routes/voucher.routes.js';
 const app = express()
 app.use (cors())
 app.use (express.json())
@@ -35,7 +36,7 @@ app.use(`/api/ai`, aiRoutes)
 app.use('/api/finance/COA',accountsRoutes)
 app.use('/api/reports', reportsRoutes);
 app.use('/api/payments',paymentRoutes)
-
+app.use('/api/vouchers', voucherRoutes);
 
 // Server
 app.listen(config.PORT ,()=>{

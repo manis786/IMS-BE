@@ -250,7 +250,22 @@ export const getParentGroups = async (req, res) => {
 export const deleteAccount = async (req, res) => {
   try {
     const { id } = req.params;
+// Account find karo pehle taake uska code pata chal sake
+    const accountToDelete = await Account.findById(id);
+    if (!accountToDelete) {
+      return res.status(404).json({ success: false, message: "Account not found" });
+    }
 
+    // SYSTEM PROTECTED CODES: Yeh wo accounts hain jo backend logic / double entry / core modules mein use ho rahe hain
+    // Inhe delete karna sakht mana hai chahe inki transactions 0 hon!
+    const protectedCodes = ['1101','1201', '1301', '2101', '4107','4108', '5105', '5107']; // Apni zaroorat ke mutabiq aur bhi codes add kar sakte ho
+
+    if (protectedCodes.includes(accountToDelete.code)) {
+      return res.status(403).json({ 
+        success: false, 
+        message: `Access Denied! Account '${accountToDelete.name}' (${accountToDelete.code}) is a core system-protected account and cannot be deleted.` 
+      });
+    }
     // CHECK 1: Kya is account ke andar mazeed sub-accounts (bachay) hain?
     const hasChildren = await Account.findOne({ parent: id });
     if (hasChildren) {
@@ -277,6 +292,18 @@ export const deleteAccount = async (req, res) => {
     }
 
     res.status(200).json({ success: true, message: "Account deleted successfully!" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const getPostingAccounts = async (req, res) => {
+  try {
+    const postingAccounts = await Account.find({ level: 3, isGroup: false })
+      .select('name code type')
+      .sort({ code: 1 });
+      
+    res.status(200).json({ success: true, data: postingAccounts });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

@@ -5,7 +5,8 @@ import {
   updateAccount, 
   seedSystemAccounts,
   getParentGroups,
-  deleteAccount
+  deleteAccount,
+  getPostingAccounts
 } from '../controllers/accounts.controller.js';
 
 const router = express.Router();
@@ -24,4 +25,5 @@ router.delete('/delete/:id', deleteAccount);
 router.get('/parent-groups', getParentGroups);
 // Seed System Accounts
 router.post('/seed',seedSystemAccounts)
+router.get('/posting-accounts', getPostingAccounts);
 export default router;

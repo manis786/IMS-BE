@@ -121,7 +121,7 @@ export const createSale = async (req, res) => {
       ];
 
       if (taxVal > 0) {
-        const taxAccount = await Account.findOne({ code: process.env.ACCOUNT_TAX_CODE || '2201' }).session(session);
+        const taxAccount = await Account.findOne({ code: process.env.ACCOUNT_TAX_CODE || '2401' }).session(session);
         if (taxAccount) journalLines.push({ accountId: taxAccount._id, debit: 0, credit: taxVal });
       }
 
@@ -232,7 +232,7 @@ export const updateSaleStatus = async (req, res) => {
       ];
 
       if (taxVal > 0) {
-        const taxAccount = await Account.findOne({ code: process.env.ACCOUNT_TAX_CODE || '2201' }).session(session);
+        const taxAccount = await Account.findOne({ code: process.env.ACCOUNT_TAX_CODE || '2401' }).session(session);
         if (taxAccount) journalLines.push({ accountId: taxAccount._id, debit: 0, credit: taxVal });
       }
 

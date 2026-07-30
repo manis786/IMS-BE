@@ -75,43 +75,6 @@ const verifyOTP = async (req, res) => {
         return errorRes(res, 500, false, error.message || "Something went wrong during Verification!", null);
     }
 }
-// const loginUser = async (req, res) => {
-//     console.log("Request received at /api/auth/login with body:", req.body);
-//     try {
-//         const { email, password } = req.body
-//         if (!email || !password) {
-//             return errorRes(res, 400, false, "Please Enter User Details for Login", null)
-//             console.log("Please Enter User Email or Password to Continue")
-//             console.log(req.body)
-//         }
-//         // Check Email from Database
-//         const user = await Users.findOne({ email })
-//         if (!user) {
-//             return errorRes(res, 400, false, "Email Id not Found, Please Register!")
-//         }
-//         if (!user.isActive) {
-//             return errorRes(res, 400, false, "Your Account is not Active , Please Verify!", null)
-//         }
-//         // Compare Password
-
-//         const isMatched = await bcrypt.compare(password, user.password)
-//         if (!isMatched) {
-//             return errorRes(res, 400, false, "Invalid Credentials", null)
-//         }
-//         // Generate Token
-
-//         const token = jwt.sign({
-//             userName: user.userName,
-//             email: user.email,
-//             id: user.id
-//         }, configs.JWT_SECRET)
-
-//       return res.status(200).json({ success: true, message: "Login Successful", token: token });
-//     } catch (error) {
-//         errorRes(res, 400, false, error.message || "Error While Login", null)
-//     }
-// }
-
 
 const loginUser = async (req, res) => {
     try {
@@ -130,8 +93,11 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid Credentials" });
         }
 
-        const token = jwt.sign({ id: user.id }, configs.JWT_SECRET);
-        
+        const token = jwt.sign(
+            { id: user.id },
+            configs.JWT_SECRET,
+            { expiresIn: '9h' }
+        );
         // Sirf ye ek line return karo
         return res.status(200).json({ success: true, token: token });
 
