@@ -16,10 +16,13 @@ import accountsRoutes from "./routes/accounts.routes.js"
 import reportsRoutes from './routes/reports.routes.js';
 import paymentRoutes from './routes/payments.routes.js'
 import voucherRoutes from './routes/voucher.routes.js';
+
 const app = express()
-app.use (cors())
-app.use (express.json())
-// connectDB()
+
+app.use(cors())
+app.use(express.json())
+
+// Global DB Middleware for Serverless (Vercel) & Local
 app.use(async (req, res, next) => {
     try {
         await connectDB();
@@ -31,21 +34,32 @@ app.use(async (req, res, next) => {
 
 // Routes
 app.use('/api/products', productRoutes);
-app.use('/api/categories', categoryRoutes)
-app.use(`/api/suppliers`,suppliersRoutes)
-app.use(`/api/purchases`,purchaseroutes)
-app.use(`/api/transactions`,transactionsRoutes)
+app.use('/api/categories', categoryRoutes);
+app.use('/api/suppliers', suppliersRoutes);
+app.use('/api/purchases', purchaseroutes);
+app.use('/api/transactions', transactionsRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/sales', salesRoutes);
-app.use(`/api/auth`,authroutes)
-app.use(`/api/dashboard`,dashboardRoutes)
-app.use(`/api/ai`, aiRoutes)
-app.use('/api/finance/COA',accountsRoutes)
+app.use('/api/auth', authroutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/finance/COA', accountsRoutes);
 app.use('/api/reports', reportsRoutes);
-app.use('/api/payments',paymentRoutes)
+app.use('/api/payments', paymentRoutes);
 app.use('/api/vouchers', voucherRoutes);
 
-// Server
-app.listen(config.PORT ,()=>{
-    console.log(`Server Is UP and Running on PORT : ${config.PORT}`)
-})
+// Root route
+app.get('/', (req, res) => {
+    res.send('API is running successfully!');
+});
+
+// Server listener: Only listen locally, Vercel handles serverless execution automatically
+const PORT = config.PORT || 5000;
+
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server Is UP and Running on PORT : ${PORT}`);
+    });
+}
+
+export default app;
