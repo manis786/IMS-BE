@@ -19,8 +19,15 @@ import voucherRoutes from './routes/voucher.routes.js';
 const app = express()
 app.use (cors())
 app.use (express.json())
-connectDB()
-
+// connectDB()
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        return res.status(500).json({ success: false, error: 'Database connection failed: ' + error.message });
+    }
+});
 
 // Routes
 app.use('/api/products', productRoutes);
