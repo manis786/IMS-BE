@@ -12,16 +12,16 @@ const connectDB = async () => {
         return cached.conn;
     }
 
-    if (!cached.promise) {
-        const opts = {
-            bufferCommands: false,
-        };
+    // if (!cached.promise) {
+    //     const opts = {
+    //         bufferCommands: false,
+    //     };
 
-        cached.promise = mongoose.connect(config.MONGODB_URI, opts).then((mongoose) => {
-            console.log(`Database Connected !`);
-            return mongoose;
-        });
-    }
+    //     cached.promise = mongoose.connect(config.MONGODB_URI, opts).then((mongoose) => {
+    //         console.log(`Database Connected !`);
+    //         return mongoose;
+    //     });
+    // }
 
     try {
         cached.conn = await cached.promise;
