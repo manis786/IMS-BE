@@ -16,9 +16,26 @@ const userSchema = new mongoose.Schema({
         required: true,
         minLength: 6
     },
+    name: {
+        type: String,
+        default: ''
+    },
+    role: {
+        type: String,
+        enum: ['ADMIN', 'MANAGER', 'CASHIER', 'AUDITOR'],
+        default: 'CASHIER'
+    },
+    branch: {
+        type: String,
+        default: 'Karachi HQ'
+    },
+    phone: {
+        type: String,
+        default: ''
+    },
     isActive: {
         type: Boolean,
-        default: false
+        default: true
     },
     otp: {
         type: String,

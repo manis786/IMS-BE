@@ -5,6 +5,7 @@ const router = express.Router();
 router.get(`/`,getPurchases)
 router.post('/', addPurchase);
 router.patch('/receive/:id', receivePurchase);
-router.put('/:id',updatePurchaseStatus)
+router.patch('/:id/receive', receivePurchase);
+router.put('/:id', updatePurchaseStatus);
 
 export default router;

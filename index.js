@@ -16,22 +16,14 @@ import accountsRoutes from "./routes/accounts.routes.js"
 import reportsRoutes from './routes/reports.routes.js';
 import paymentRoutes from './routes/payments.routes.js'
 import voucherRoutes from './routes/voucher.routes.js';
+import expensesRoutes from './routes/expenses.routes.js';
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
 
-// Global DB Middleware for Serverless (Vercel) & Local
-app.use(async (req, res, next) => {
-    try {
-        await connectDB();
-        next();
-    } catch (error) {
-        return res.status(500).json({ success: false, error: 'Database connection failed: ' + error.message });
-    }
-});
-
+connectDB()
 // Routes
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
@@ -44,9 +36,11 @@ app.use('/api/auth', authroutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/finance/COA', accountsRoutes);
+app.use('/api/finance/coa', accountsRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/vouchers', voucherRoutes);
+app.use('/api/expenses', expensesRoutes);
 
 // Root route
 app.get('/', (req, res) => {

@@ -1,19 +1,4 @@
-import mongoose from 'mongoose';
-
-// Ensure standard collection schemas for Ledger/Journal exist or fall back safely
-const JournalSchema = new mongoose.Schema({
-  date: { type: Date, default: Date.now },
-  description: { type: String, required: true },
-  referenceType: { type: String, required: true }, // e.g., 'POS_SALE', 'PURCHASE'
-  referenceId: { type: mongoose.Schema.Types.ObjectId, required: true },
-  lines: [{
-    accountId: { type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true },
-    debit: { type: Number, default: 0 },
-    credit: { type: Number, default: 0 }
-  }]
-}, { timestamps: true });
-
-const Journal = mongoose.models.journals || mongoose.model('journals', JournalSchema);
+import JournalEntry from '../models/journal.model.js';
 
 /**
  * Double-Entry Core Helper function (NAMED EXPORT)
@@ -33,7 +18,7 @@ export const postToLedger = async (journalData, session) => {
     }
 
     // 2. Insert dynamic double-entry lines safely bound to the session
-    const newJournal = new Journal({
+    const newJournal = new JournalEntry({
       date,
       description,
       referenceType,

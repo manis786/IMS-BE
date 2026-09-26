@@ -23,8 +23,17 @@ export const getAllProducts = async (req, res) => {
       },
       {
         $project: {
-          name: 1, id: 1, costPrice: 1, salePrice: 1,category: 1,
+          name: 1, 
+          id: 1, 
+          brand: { $ifNull: ["$brand", ""] },
+          barcode: { $ifNull: ["$barcode", ""] },
+          minStock: { $ifNull: ["$minStock", 10] },
+          costPrice: 1, 
+          salePrice: 1,
+          category: 1,
+          categoryInfo: { $arrayElemAt: ["$categoryInfo", 0] },
           status: { $ifNull: ["$status", "active"] },
+          createdAt: 1,
           stock: {
             $reduce: {
               input: "$stockData",
@@ -46,59 +55,32 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
-// 2. Create Product (With Duplicate Check)
-// export const createProduct = async (req, res) => {
-//   try {
-//     // req.body se fields ko alag nikalen
-//     const { id, name, brand, categoryId, costPrice, salePrice, stock, minStock, barcode, status } = req.body;
-
-//     // Naya object banayen jo aapke Mongoose Schema se exact match karta ho
-//     const newProduct = await Product.create({
-//       id: id, // Agar schema mai 'id' field hai, warna is line ko hata dein
-//       name,
-//       brand,
-//       category: categoryId, // <--- Frontend ki categoryId ko schema ki 'category' field mai map karein (agar schema mai naam 'category' hai)
-//       costPrice,
-//       salePrice,
-//       stock,
-//       minStock,
-//       barcode,
-//       status
-//     });
-
-//     // Success response
-//     res.status(201).json({ success: true, data: newProduct });
-//   } catch (error) {
-//     // Yeh console.log aapko terminal mai exact error dikhayega ke galti kahan hai
-//     console.error("Mongoose Save Error:", error);
-//     res.status(500).json({ success: false, message: error.message });
-//   }
-// };
-
+// 2. Create Product
 export const createProduct = async (req, res) => {
   try {
-    // 1. Frontend se 'category' aa raha hai (na ke 'categoryId'), isliye destructuring update ki
     const { id, name, brand, category, costPrice, salePrice, stock, minStock, barcode, status } = req.body;
 
-    // 2. Validation check (taake crash na ho)
     if (!name || !costPrice || !salePrice) {
       return res.status(400).json({ success: false, message: "Required fields missing" });
     }
 
-    // 3. New Product creation
-    const newProduct = await Product.create({
-      id, 
+    const payload = {
       name,
-      brand,
-      category, // Frontend 'category' field bhej raha hai, yahi database mein jayega
-      costPrice: Number(costPrice), // Ensure kar rahe hain ke ye number ho
+      brand: brand || '',
+      category,
+      costPrice: Number(costPrice),
       salePrice: Number(salePrice),
-      stock: stock || 0,
-      minStock: minStock || 10,
-      barcode,
+      stock: Number(stock) || 0,
+      minStock: Number(minStock) || 10,
+      barcode: barcode || '',
       status: status || 'active'
-    });
+    };
 
+    if (id && id.trim()) {
+      payload.id = id.trim();
+    }
+
+    const newProduct = await Product.create(payload);
     res.status(201).json({ success: true, data: newProduct });
   } catch (error) {
     console.error("Mongoose Save Error:", error);

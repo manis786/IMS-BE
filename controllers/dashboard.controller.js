@@ -6,18 +6,20 @@ import Purchase from '../models/purchases.model.js';
 import Sale from '../models/sale.model.js';
 import Transaction from '../models/transactions.model.js';
 import { Category } from '../models/categories.model.js';
+import Expense from '../models/expenses.model.js';
 
 export const getDashboardSummary = async (req, res) => {
   try {
     // ── Parallel fetch ─────────────────────────────────────────────────────────
-    const [products, customers, suppliers, purchases, sales, transactions, categories] = await Promise.all([
+    const [products, customers, suppliers, purchases, sales, transactions, categories, expenses] = await Promise.all([
       Product.find({}).populate('category', 'name'),
       Customer.find({}),
       Supplier.find({}),
       Purchase.find({}).sort({ date: -1 }),
       Sale.find({}).sort({ date: -1 }),
       Transaction.find({}).sort({ createdAt: -1 }),
-      Category.find({})
+      Category.find({}),
+      Expense.find({})
     ]);
 
     // ── Monthly Analytics (last 6 months) ─────────────────────────────────────
@@ -38,57 +40,11 @@ export const getDashboardSummary = async (req, res) => {
       monthlyMap[key].transactions += 1;
     });
 
-    // Mock expenses list (since no Expense model exists yet in DB)
-    const mockExpenses = [
-      { amount: 150000, date: '2026-06-01' },
-      { amount: 100000, date: '2026-06-01' },
-      { amount: 84500, date: '2026-06-05' },
-      { amount: 62300, date: '2026-06-06' },
-      { amount: 12400, date: '2026-06-07' },
-      { amount: 320000, date: '2026-06-02' },
-      { amount: 160000, date: '2026-06-02' },
-      { amount: 25000, date: '2026-06-04' },
-      { amount: 45000, date: '2026-06-03' },
-      { amount: 20000, date: '2026-06-08' },
-      { amount: 18500, date: '2026-06-04' },
-      { amount: 12000, date: '2026-06-05' },
-      { amount: 35000, date: '2026-06-01' },
-      { amount: 8800, date: '2026-06-06' },
-      { amount: 6500, date: '2026-06-06' },
-      { amount: 5400, date: '2026-06-09' },
-      { amount: 8500, date: '2026-06-08' },
-      { amount: 15000, date: '2026-06-07' },
-      { amount: 10000, date: '2026-06-05' },
-      { amount: 30000, date: '2026-06-04' },
-      { amount: 15000, date: '2026-06-10' },
-      { amount: 8000, date: '2026-06-02' },
-      { amount: 6000, date: '2026-06-09' },
-      { amount: 4800, date: '2026-06-08' },
-      { amount: 15000, date: '2026-06-07' },
-      { amount: 35000, date: '2026-06-03' },
-      { amount: 10000, date: '2026-06-06' },
-      { amount: 8000, date: '2026-06-01' },
-      { amount: 3200, date: '2026-06-09' },
-      { amount: 6500, date: '2026-06-04' },
-      { amount: 20000, date: '2026-06-12' },
-      { amount: 12000, date: '2026-06-12' },
-      { amount: 3300, date: '2026-06-13' },
-      { amount: 10000, date: '2026-06-10' },
-      { amount: 5800, date: '2026-06-11' },
-      { amount: 18000, date: '2026-06-01' },
-      { amount: 15000, date: '2026-06-08' },
-      { amount: 12000, date: '2026-06-05' },
-      { amount: 4800, date: '2026-06-07' },
-      { amount: 4000, date: '2026-06-10' },
-      { amount: 25000, date: '2026-07-02' },
-      { amount: 12000, date: '2026-07-05' },
-      { amount: 8500, date: '2026-07-09' },
-    ];
-
-    mockExpenses.forEach(exp => {
+    // Real expenses from database
+    expenses.forEach(exp => {
       const dateStr = exp.date ? exp.date.slice(0, 7) : '';
       if (monthlyMap[dateStr]) {
-        monthlyMap[dateStr].expenses += exp.amount;
+        monthlyMap[dateStr].expenses += (exp.amount || 0);
       }
     });
 

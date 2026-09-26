@@ -48,8 +48,11 @@ export const createSale = async (req, res) => {
       }
     }
 
-    const currentStatus = status || 'paid';
-    let remainingAmount = (currentStatus === 'pending' || paymentMethod === 'Credit') ? computedGrandTotal : 0;
+    const isCredit = paymentMethod === 'Credit';
+    const currentStatus = isCredit ? 'pending' : (status || 'paid');
+    const remainingAmount = isCredit ? computedGrandTotal : 0;
+    const paidAmount = isCredit ? 0 : computedGrandTotal;
+    const paymentStatus = isCredit ? 'Unpaid' : 'Paid';
 
     const newSale = new Sale({
       customer: customerId && isValidObjectId(customerId) ? new mongoose.Types.ObjectId(customerId) : null,
@@ -59,10 +62,12 @@ export const createSale = async (req, res) => {
       tax: taxVal,
       deliveryCharges: deliveryVal,
       grandTotal: computedGrandTotal,
-      paymentMethod,
+      paidAmount,
       remainingAmount,
+      paymentStatus,
+      paymentMethod,
       type: type || 'pos',
-      status: paymentMethod === 'Credit' ? 'pending' : 'paid'
+      status: currentStatus
     });
 
     const savedSale = await newSale.save({ session });

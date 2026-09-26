@@ -44,6 +44,7 @@ export const getTrialBalance = async (req, res) => {
     accounts.forEach(acc => {
       const idStr = acc._id.toString();
       const b = balanceMap[idStr] || { debit: 0, credit: 0 };
+      const parentIdStr = (acc.parent || acc.parentId) ? (acc.parent || acc.parentId).toString() : null;
 
       accountMap[idStr] = {
         _id: idStr,
@@ -51,7 +52,7 @@ export const getTrialBalance = async (req, res) => {
         name: acc.name || '',
         type: acc.type || '',
         level: Number(acc.level || 1),
-        parentId: acc.parentId ? acc.parentId.toString() : null,
+        parentId: parentIdStr,
         debit: b.debit,
         credit: b.credit,
         children: []
@@ -63,7 +64,7 @@ export const getTrialBalance = async (req, res) => {
     accounts.forEach(acc => {
       const idStr = acc._id.toString();
       const node = accountMap[idStr];
-      const parentIdStr = acc.parentId ? acc.parentId.toString() : null;
+      const parentIdStr = (acc.parent || acc.parentId) ? (acc.parent || acc.parentId).toString() : null;
 
       if (parentIdStr && accountMap[parentIdStr]) {
         accountMap[parentIdStr].children.push(node);

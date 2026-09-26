@@ -43,10 +43,14 @@ export const receiveCustomerPayment = async (req, res) => {
       });
     }
 
-    // 2. Customer ki unpaid/pending invoices fetch karo (FIFO method - Purani pehle)[cite: 4]
+    // 2. Customer ki unpaid/pending invoices fetch karo (FIFO method - Purani pehle)
     const unpaidInvoices = await Sale.find({ 
       customer: customerId, 
-      paymentStatus: { $ne: 'Paid' } 
+      $or: [
+        { paymentStatus: { $ne: 'Paid' } },
+        { remainingAmount: { $gt: 0 } },
+        { status: 'pending' }
+      ]
     }).sort({ createdAt: 1 }).session(session);
 
     let remainingPayment = paidAmountVal;

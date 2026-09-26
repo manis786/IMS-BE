@@ -15,7 +15,7 @@ const JournalEntrySchema = new mongoose.Schema({
   description: { type: String, required: true, trim: true },
   referenceType: {
     type: String,
-    enum: ['POS_SALE', 'CREDIT_SALE', 'PURCHASE', 'MANUAL'],
+    enum: ['POS_SALE', 'CREDIT_SALE', 'PURCHASE', 'MANUAL', 'RECEIVE_PAYMENT', 'SUPPLIER_PAYMENT', 'VOUCHER', 'EXPENSE'],
     required: true
   },
   referenceId: { type: mongoose.Schema.Types.ObjectId, required: true },

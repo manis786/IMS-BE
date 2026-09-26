@@ -1,15 +1,19 @@
 import mongoose from 'mongoose';
 
 const productSchema = new mongoose.Schema({
-  id: { type: String, required: true, unique: true },
+  id: { 
+    type: String, 
+    unique: true, 
+    sparse: true,
+    default: () => `PRD-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+  },
   name: { type: String, required: true },
-  brand: { type: String },
+  brand: { type: String, default: '' },
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   costPrice: { type: Number, required: true },
   salePrice: { type: Number, required: true },
-  // stock field ko ab logic mein use nahi karenge
   minStock: { type: Number, default: 10 },
-  barcode: { type: String },
+  barcode: { type: String, default: '' },
   status: { type: String, default: "active" }
 }, { timestamps: true });
 
